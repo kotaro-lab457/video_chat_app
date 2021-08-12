@@ -25,3 +25,14 @@ app.get("/", (req, res) => {
 app.get("/:room", (req, res) => {
   res.render("room", { roomId: req.params.room });
 });
+
+io.on("connection", (socket) => {
+  socket.on("join-room", (roomId, userId) => {
+    
+    // roomIdで入ったことを知らせる。（コネクトする必要がある）
+    socket.join(roomId);
+
+    // 入ってきたユーザー以外に知らせる。
+    socket.to(roomId).emit("user-connected", userId);
+  });
+});
