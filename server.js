@@ -26,9 +26,11 @@ app.get("/:room", (req, res) => {
   res.render("room", { roomId: req.params.room });
 });
 
+// ユーザーが接続されるたびの処理
 io.on("connection", (socket) => {
   socket.on("join-room", (roomId, userId) => {
-    
+    console.log("roomId=", roomId);
+    console.log("userId=", userId);
     // roomIdで入ったことを知らせる。（コネクトする必要がある）
     socket.join(roomId);
 

@@ -1,9 +1,13 @@
 // ポート番号とコネクト
 const socket = io("/");
 
-const userId = 12345;
+const myPeer = new Peer();
 
-socket.emit("join-room", ROOM_ID, userId);
+// openイベントの受信
+myPeer.on("open", userId => {
+  // 受け取ったjoinIdを取得。
+  socket.emit("join-room", ROOM_ID, userId);
+});
 
 // イベントの受信には on()メソッド
 socket.on("user-connected", (userId) => {
