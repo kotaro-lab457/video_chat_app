@@ -16,6 +16,23 @@ const addVideoStream = (video, stream) => {
   videoWrap.append(video);
 }
 
+const connectToNewUser = (userId, stream) => {
+
+  // 相手のユーザーを指定し、自分のストリーミング情報を渡す。
+  const call = myPeer.call(userId, stream);
+  const video = document.createElement("video");
+
+  // 受信
+  call.on("stream", (userVideoStream) => {
+    addVideoStream(video, userVideoStream);
+  });
+
+  // ビデオのコネクト切断の処理
+  call.on("close", () => {
+    video.remove();
+  });
+}
+
 // デバイスから音声オーディオやビデオデータの取得
 navigator.mediaDevices.getUserMedia({
   video: true,
@@ -23,15 +40,26 @@ navigator.mediaDevices.getUserMedia({
 }).then((stream) => {
   // 第一引数にDOM、第二引数に情報を格納
   addVideoStream(myVideo, stream);
+
+  myPeer.on("call", call => {
+    call.answer(stream);
+
+    const video = document.createElement("video");
+    call.on("stream", userVideoStream => {
+      addVideoStream(video, userVideoStream);
+    });
+  })
+
+  // イベントの受信には on()メソッド
+  socket.on("user-connected", (userId) => {
+  // console.log("userId:", userId);
+  
+  connectToNewUser(userId, stream);
+});
 });
 
 // openイベントの受信
 myPeer.on("open", userId => {
   // 受け取ったjoinIdを取得。
   socket.emit("join-room", ROOM_ID, userId);
-});
-
-// イベントの受信には on()メソッド
-socket.on("user-connected", (userId) => {
-  console.log("userId:", userId);
 });
