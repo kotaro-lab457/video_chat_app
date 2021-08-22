@@ -36,5 +36,11 @@ io.on("connection", (socket) => {
 
     // 入ってきたユーザー以外に知らせる。
     socket.to(roomId).emit("user-connected", userId);
+
+    // どのユーザーが抜けたか知らせる。
+    socket.on("disconnect", () => {
+      // 同一ルーム内のみに投げる
+      socket.to(roomId).emit("user-disconnected", userId);
+    });
   });
 });
